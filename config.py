@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-DATABASE_URLL = os.getenv("DATABASE_URL")
+DATABASE_URLL = os.getenv("DB_URL")
 engine = create_engine(DATABASE_URLL)
 sessionLocal = sessionmaker(autocommit=False,autoflush=False,bind=engine)
 
