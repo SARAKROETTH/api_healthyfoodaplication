@@ -29,6 +29,8 @@ class ResponeSchema(GenericModel,Generic[T]):
     status: str
     message: str
     result: Optional[T] = None
+    expires_at: str = None
+    
 
 class TokenRespone(BaseModel):
     access_token: str

@@ -14,6 +14,9 @@ load_dotenv()
 
 T = TypeVar('T')
 
+OTP_DIGITS = 4
+OTP_TTL = 300 
+
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 
@@ -65,10 +68,12 @@ class OtpRepo():
             hashlib.sha256
         ).digest()  # 🔑 raw bytes
 
-        # Convert bytes → int → 6 digits
-        otp_int = int.from_bytes(digest, "big") % 1_000_000
+        # Convert bytes → int → 4 digits
+        otp_int = int.from_bytes(digest, "big") % (10 ** OTP_DIGITS)
 
-        return f"{otp_int:06d}"
+        return f"{otp_int:0{OTP_DIGITS}d}"
+    
+        
 
 
         
