@@ -30,7 +30,7 @@ class ResponeSchema(GenericModel,Generic[T]):
     message: str
     result: Optional[T] = None
     expires_at: str = None
-    
+
 
 class TokenRespone(BaseModel):
     access_token: str
@@ -40,3 +40,7 @@ class OTPRespone(BaseModel):
     message: str
     phone_number: str
     otp: str
+
+class ResenOtp(BaseModel):
+    phone_number: str
+    country_code: str

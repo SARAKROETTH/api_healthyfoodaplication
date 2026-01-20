@@ -1,5 +1,5 @@
 from fastapi import APIRouter,Depends,HTTPException
-from schemas.users import ResponeSchema,Resister,TokenRespone,Login,RequestOtp,OTPRespone,Verify_Otp
+from schemas.users import ResponeSchema,Resister,TokenRespone,Login,RequestOtp,OTPRespone,Verify_Otp,ResenOtp
 from sqlalchemy.orm import Session
 from config import get_db
 from passlib.context import CryptContext
@@ -88,3 +88,38 @@ async def verify_otp(request: Verify_Otp,db: Session = Depends(get_db)):
 
     return {"message": "OTP verified successfully"}
 
+@router.post("/resend-otp")
+async def resend_otp(request: ResenOtp,db: Session =Depends(get_db)):
+
+    otp_entry = db.query(OTP).filter(
+        OTP.phone_number == request.phone_number
+    ).first()
+
+   
+    if not otp_entry:
+        raise HTTPException(
+            status_code=404,
+            detail="OTP not found. Please request OTP first."
+        )
+    
+    if otp_entry.expires_at > datetime.utcnow() - timedelta(seconds=30):
+        raise HTTPException(429, "Please wait before resending OTP")
+    
+     # Generate new OTP
+    new_otp = generate_otp()
+    new_hash = hash_otp(new_otp)
+
+     # Update OTP record
+    otp_entry.otp_code = new_hash
+    otp_entry.expires_at = datetime.utcnow() + timedelta(minutes=1)
+
+    db.commit()
+
+    # Send OTP via SMS (replace in production)
+    print(f"Resent OTP for {otp_entry.phone_number}: {new_otp}")
+
+    return {
+        "message": "OTP resent successfully",
+        "expires_at": otp_entry.expires_at.isoformat()
+    }
+    
